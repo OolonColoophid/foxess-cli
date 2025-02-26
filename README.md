@@ -57,6 +57,10 @@ swift build
 
 You need a valid FoxESS API key to use this tool. Visit the FoxESS Cloud portal to obtain your API key.
 
+## Acknowledgments
+
+This project leveraged [Alistair Priest's Energy Stats](https://github.com/alpriest/EnergyStats) for understanding the method for accessing the FoxESS API.
+
 ## License
 
 This project is open source and available under the MIT License.
