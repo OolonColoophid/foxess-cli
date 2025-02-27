@@ -205,9 +205,9 @@ class CommandLineArgs {
     
     /// Prints help information with usage instructions and available options.
     func printHelp() {
-        print("EnergyStatsCmd - Command line tool to query FoxESS energy data")
+        print("foxESS - Command line tool to query FoxESS energy data")
         print("")
-        print("Usage: EnergyStatsCmd <API_KEY> [options] [variables]")
+        print("Usage: foxESS <API_KEY> [options] [variables]")
         print("")
         print("Options:")
         print("  --help, -h          Display this help message")
@@ -229,8 +229,8 @@ class CommandLineArgs {
         print("  meterPower2         CT2 power reading")
         print("")
         print("Example:")
-        print("  EnergyStatsCmd YOUR_API_KEY --generationPower --SoC")
-        print("  EnergyStatsCmd YOUR_API_KEY --all")
+        print("  foxESS YOUR_API_KEY --generationPower --SoC")
+        print("  foxESS YOUR_API_KEY --all")
     }
 }
 
@@ -307,7 +307,7 @@ extension Array where Element == OpenQueryData {
 
 /// Main API client for communicating with FoxESS Cloud.
 /// Handles authentication, signatures, and data fetching.
-class EnergyStatsAPI {
+class FoxESSStatsAPI {
     /// FoxESS API key for authentication
     private let apiKey: String
     /// Authentication token (same as API key for FoxESS)
@@ -338,7 +338,7 @@ class EnergyStatsAPI {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("en", forHTTPHeaderField: "lang")
         request.setValue(TimeZone.current.identifier, forHTTPHeaderField: "timezone")
-        request.setValue("EnergyStatsCmdLine/1.0", forHTTPHeaderField: "User-Agent")
+        request.setValue("FoxESSCmdLine/1.0", forHTTPHeaderField: "User-Agent")
         
         // Generate timestamp for signature
         let timestamp = Int64(round(Date().timeIntervalSince1970 * 1000))
@@ -540,7 +540,7 @@ func run(args: CommandLineArgs) async {
     }
     
     // Create API client
-    let api = EnergyStatsAPI(apiKey: apiKey, debugMode: args.debugMode)
+    let api = FoxESSStatsAPI(apiKey: apiKey, debugMode: args.debugMode)
     
     do {
         // Just test the API key if requested
