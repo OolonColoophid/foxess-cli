@@ -591,9 +591,19 @@ func run(args: CommandLineArgs) async {
             let batteryFlow = batteryCharge - batteryDischarge
             let batterySoC = data.datas.double(for: "SoC") ?? 0
             
+            if args.debugMode {
+                print("DEBUG: Raw values:")
+                print("DEBUG: Solar: \(solar) W")
+                print("DEBUG: GridConsumption: \(gridConsumption) W")
+                print("DEBUG: FeedIn: \(feedIn) W")
+                print("DEBUG: Home: \(home) W")
+                print("DEBUG: BatteryCharge: \(batteryCharge) W")
+                print("DEBUG: BatteryDischarge: \(batteryDischarge) W")
+            }
+            
             // Helper function to format power values in kW
             let formatValue = { (value: Double) -> String in
-                return String(format: "%.2f kW", value / 1000.0)
+                return String(format: "%.2f kW", value)
             }
             
             // Print a formatted summary of the system status
