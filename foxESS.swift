@@ -271,7 +271,10 @@ extension Array where Element == OpenQueryData {
     /// - Returns: The unit string or empty string if not found
     func getUnit(for key: String) -> String {
         if let item = self.first(where: { $0.variable.lowercased() == key.lowercased() }) {
-            return item.unit ?? ""
+            var unit = item.unit ?? ""
+            // Replace degrees-C symbol with just "C"
+            unit = unit.replacingOccurrences(of: "°C", with: "C")
+            return unit
         }
         return ""
     }
