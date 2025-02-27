@@ -3,96 +3,111 @@ import CryptoKit
 
 // MARK: - Data Models
 
-/**
- * Represents a FoxESS device with its associated properties
- * Core model for storing device information returned from the FoxESS Cloud API
- */
+/// Represents a FoxESS device with its associated properties.
+/// Core model for storing device information returned from the FoxESS Cloud API.
 struct Device: Codable {
-    let deviceSN: String              // Unique serial number for the device
-    let stationName: String           // Name of the solar installation/station
-    let stationID: String             // Unique ID for the station
-    let battery: String?              // Battery information if available
-    let moduleSN: String              // Serial number of the specific module
-    let deviceType: String            // Type of FoxESS device
-    let hasPV: Bool                   // Whether the system has photovoltaic panels
-    let hasBattery: Bool              // Whether the system has a battery installed
+    /// Unique serial number for the device
+    let deviceSN: String
+    /// Name of the solar installation/station
+    let stationName: String
+    /// Unique ID for the station
+    let stationID: String
+    /// Battery information if available
+    let battery: String?
+    /// Serial number of the specific module
+    let moduleSN: String
+    /// Type of FoxESS device
+    let deviceType: String
+    /// Whether the system has photovoltaic panels
+    let hasPV: Bool
+    /// Whether the system has a battery installed
+    let hasBattery: Bool
 }
 
-/**
- * Generic wrapper for all FoxESS API responses
- * All API responses are wrapped in this structure with an error code and result
- */
+/// Generic wrapper for all FoxESS API responses.
+/// All API responses are wrapped in this structure with an error code and result.
 struct NetworkResponse<T: Decodable>: Decodable {
-    let errno: Int                    // Error number (0 means success)
-    let result: T?                    // The actual data returned by the API
+    /// Error number (0 means success)
+    let errno: Int
+    /// The actual data returned by the API
+    let result: T?
 }
 
-/**
- * Request parameters for fetching device list
- * Controls pagination of results
- */
+/// Request parameters for fetching device list.
+/// Controls pagination of results.
 struct DeviceListRequest: Codable {
-    var currentPage: Int              // The page number to retrieve
-    var pageSize: Int                 // Number of items per page
+    /// The page number to retrieve
+    var currentPage: Int
+    /// Number of items per page
+    var pageSize: Int
     
     init() {
         self.currentPage = 1
-        self.pageSize = 10            // Default to 10 devices per page
+        self.pageSize = 10 // Default to 10 devices per page
     }
 }
 
-/**
- * Response structure for paginated device list queries
- * Contains pagination information and list of devices
- */
+/// Response structure for paginated device list queries.
+/// Contains pagination information and list of devices.
 struct PagedDeviceListResponse: Codable {
-    let pageSize: Int                 // Number of items per page
-    let currentPage: Int              // The current page number
-    let total: Int                    // Total number of devices available
-    let data: [DeviceSummaryResponse] // List of devices on this page
+    /// Number of items per page
+    let pageSize: Int
+    /// The current page number
+    let currentPage: Int
+    /// Total number of devices available
+    let total: Int
+    /// List of devices on this page
+    let data: [DeviceSummaryResponse]
 }
 
-/**
- * Summary information about a device
- * Used in the device list response
- */
+/// Summary information about a device.
+/// Used in the device list response.
 struct DeviceSummaryResponse: Codable {
-    let deviceSN: String              // Unique serial number for the device
-    let deviceType: String            // Type of FoxESS device
-    let stationID: String             // ID of the station the device belongs to
-    let stationName: String           // Name of the station
-    let moduleSN: String              // Serial number of the specific module
-    let hasBattery: Bool              // Whether the system has a battery installed
-    let hasPV: Bool                   // Whether the system has photovoltaic panels
+    /// Unique serial number for the device
+    let deviceSN: String
+    /// Type of FoxESS device
+    let deviceType: String
+    /// ID of the station the device belongs to
+    let stationID: String
+    /// Name of the station
+    let stationName: String
+    /// Serial number of the specific module
+    let moduleSN: String
+    /// Whether the system has a battery installed
+    let hasBattery: Bool
+    /// Whether the system has photovoltaic panels
+    let hasPV: Bool
 }
 
-/**
- * Request parameters for querying device variables
- * Used to fetch real-time data from a device
- */
+/// Request parameters for querying device variables.
+/// Used to fetch real-time data from a device.
 struct OpenQueryRequest: Codable {
-    let deviceSN: String              // Serial number of the device to query
-    let variables: [String]           // List of variable names to query
+    /// Serial number of the device to query
+    let deviceSN: String
+    /// List of variable names to query
+    let variables: [String]
 }
 
-/**
- * Response structure for open queries
- * Contains device information and requested data points
- */
+/// Response structure for open queries.
+/// Contains device information and requested data points.
 struct OpenQueryResponse: Codable {
-    let deviceSN: String              // Serial number of the device that was queried
-    let datas: [OpenQueryData]        // Array of data points returned from the device
+    /// Serial number of the device that was queried
+    let deviceSN: String
+    /// Array of data points returned from the device
+    let datas: [OpenQueryData]
 }
 
-/**
- * Individual data point from a device query
- * Contains the variable name, value, human-readable name, and unit
- */
+/// Individual data point from a device query.
+/// Contains the variable name, value, human-readable name, and unit.
 struct OpenQueryData: Codable {
-    let variable: String              // API variable name (e.g., "generationPower")
-    let value: QueryData              // The actual value of the variable
-    let name: String                  // Human-readable name of the variable
-    let unit: String?                 // Unit of measurement (e.g., "kW", "%")
+    /// API variable name (e.g., "generationPower")
+    let variable: String
+    /// The actual value of the variable
+    let value: QueryData
+    /// Human-readable name of the variable
+    let name: String
+    /// Unit of measurement (e.g., "kW", "%")
+    let unit: String?
     
     enum CodingKeys: String, CodingKey {
         case variable
@@ -102,19 +117,18 @@ struct OpenQueryData: Codable {
     }
 }
 
-/**
- * Enum representing different types of data values
- * Can be a double (numeric), string, or unknown type
- */
+/// Enum representing different types of data values.
+/// Can be a double (numeric), string, or unknown type.
 enum QueryData: Codable {
-    case double(Double)               // Numeric value
-    case string(String)               // Text value
-    case unknown                      // Unrecognized value type
+    /// Numeric value
+    case double(Double)
+    /// Text value
+    case string(String)
+    /// Unrecognized value type
+    case unknown
     
-    /**
-     * Custom decoder to handle different value types dynamically
-     * Attempts to decode as double first, then string, falling back to unknown
-     */
+    /// Custom decoder to handle different value types dynamically.
+    /// Attempts to decode as double first, then string, falling back to unknown.
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         
@@ -127,9 +141,7 @@ enum QueryData: Codable {
         }
     }
     
-    /**
-     * Custom encoder to properly encode the different value types
-     */
+    /// Custom encoder to properly encode the different value types.
     func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         
@@ -146,24 +158,26 @@ enum QueryData: Codable {
 
 // MARK: - Command Line Argument Handling
 
-/**
- * Parses and stores command line arguments
- * Handles API key, debug flags, and requested variables
- */
+/// Parses and stores command line arguments.
+/// Handles API key, debug flags, and requested variables.
 class CommandLineArgs {
-    var apiKey: String?               // FoxESS API key for authentication
-    var debugMode = false             // Flag for enabling debug output
-    var testMode = false              // Flag for just testing the API key
-    var showHelp = false              // Flag for showing help text
-    var variables: [String] = []      // List of variables to query
-    var showAll = false               // Flag to show all available variables
+    /// FoxESS API key for authentication
+    var apiKey: String?
+    /// Flag for enabling debug output
+    var debugMode = false
+    /// Flag for just testing the API key
+    var testMode = false
+    /// Flag for showing help text
+    var showHelp = false
+    /// List of variables to query
+    var variables: [String] = []
+    /// Flag to show all available variables
+    var showAll = false
     
-    /**
-     * Initializes by parsing command line arguments
-     * Extracts API key, options, and variables
-     * 
-     * @param args Array of command line arguments
-     */
+    /// Initializes by parsing command line arguments.
+    /// Extracts API key, options, and variables.
+    ///
+    /// - Parameter args: Array of command line arguments
     init(args: [String]) {
         var i = 1  // Skip the program name
         while i < args.count {
@@ -189,9 +203,7 @@ class CommandLineArgs {
         }
     }
     
-    /**
-     * Prints help information with usage instructions and available options
-     */
+    /// Prints help information with usage instructions and available options.
     func printHelp() {
         print("EnergyStatsCmd - Command line tool to query FoxESS energy data")
         print("")
@@ -224,17 +236,13 @@ class CommandLineArgs {
 
 // MARK: - Helper Extensions
 
-/**
- * Extends Array of OpenQueryData with convenient accessor methods
- * Provides type-safe access to data values and metadata
- */
+/// Extends Array of OpenQueryData with convenient accessor methods.
+/// Provides type-safe access to data values and metadata.
 extension Array where Element == OpenQueryData {
-    /**
-     * Gets a numeric value for a variable
-     * 
-     * @param key The variable name to look for
-     * @return The numeric value if found and it's a number, nil otherwise
-     */
+    /// Gets a numeric value for a variable.
+    ///
+    /// - Parameter key: The variable name to look for
+    /// - Returns: The numeric value if found and it's a number, nil otherwise
     func double(for key: String) -> Double? {
         if let item = self.first(where: { $0.variable.lowercased() == key.lowercased() }) {
             if case .double(let value) = item.value {
@@ -244,12 +252,10 @@ extension Array where Element == OpenQueryData {
         return nil
     }
     
-    /**
-     * Gets a string value for a variable
-     * 
-     * @param key The variable name to look for
-     * @return The string value if found and it's a string, nil otherwise
-     */
+    /// Gets a string value for a variable.
+    ///
+    /// - Parameter key: The variable name to look for
+    /// - Returns: The string value if found and it's a string, nil otherwise
     func string(for key: String) -> String? {
         if let item = self.first(where: { $0.variable.lowercased() == key.lowercased() }) {
             if case .string(let value) = item.value {
@@ -259,12 +265,10 @@ extension Array where Element == OpenQueryData {
         return nil
     }
     
-    /**
-     * Gets the unit of measurement for a variable
-     * 
-     * @param key The variable name to look for
-     * @return The unit string or empty string if not found
-     */
+    /// Gets the unit of measurement for a variable.
+    ///
+    /// - Parameter key: The variable name to look for
+    /// - Returns: The unit string or empty string if not found
     func getUnit(for key: String) -> String {
         if let item = self.first(where: { $0.variable.lowercased() == key.lowercased() }) {
             return item.unit ?? ""
@@ -272,12 +276,10 @@ extension Array where Element == OpenQueryData {
         return ""
     }
     
-    /**
-     * Gets the human-readable name for a variable
-     * 
-     * @param key The variable name to look for
-     * @return The human-readable name or the key itself if not found
-     */
+    /// Gets the human-readable name for a variable.
+    ///
+    /// - Parameter key: The variable name to look for
+    /// - Returns: The human-readable name or the key itself if not found
     func getName(for key: String) -> String {
         if let item = self.first(where: { $0.variable.lowercased() == key.lowercased() }) {
             return item.name
@@ -285,10 +287,8 @@ extension Array where Element == OpenQueryData {
         return key
     }
     
-    /**
-     * Prints all available variables and their current values
-     * Used with the --all flag
-     */
+    /// Prints all available variables and their current values.
+    /// Used with the --all flag.
     func dumpVariables() {
         print("Available variables:")
         for item in self {
@@ -305,32 +305,30 @@ extension Array where Element == OpenQueryData {
 
 // MARK: - FoxESS API Client
 
-/**
- * Main API client for communicating with FoxESS Cloud
- * Handles authentication, signatures, and data fetching
- */
+/// Main API client for communicating with FoxESS Cloud.
+/// Handles authentication, signatures, and data fetching.
 class EnergyStatsAPI {
-    private let apiKey: String        // FoxESS API key for authentication
-    private var token: String?        // Authentication token (same as API key for FoxESS)
-    private let debugMode: Bool       // Flag for enabling debug output
+    /// FoxESS API key for authentication
+    private let apiKey: String
+    /// Authentication token (same as API key for FoxESS)
+    private var token: String?
+    /// Flag for enabling debug output
+    private let debugMode: Bool
     
-    /**
-     * Initializes the API client
-     * 
-     * @param apiKey FoxESS API key for authentication
-     * @param debugMode Whether to output debug information
-     */
+    /// Initializes the API client.
+    ///
+    /// - Parameters:
+    ///   - apiKey: FoxESS API key for authentication
+    ///   - debugMode: Whether to output debug information
     init(apiKey: String, debugMode: Bool = false) {
         self.apiKey = apiKey
         self.debugMode = debugMode
     }
     
-    /**
-     * Adds required HTTP headers to a request
-     * Includes authentication token, timestamps, and signature
-     * 
-     * @param request URLRequest to modify
-     */
+    /// Adds required HTTP headers to a request.
+    /// Includes authentication token, timestamps, and signature.
+    ///
+    /// - Parameter request: URLRequest to modify
     private func addHeaders(to request: inout URLRequest) {
         if let token = token {
             request.setValue(token, forHTTPHeaderField: "token")
@@ -367,14 +365,12 @@ class EnergyStatsAPI {
         request.setValue(signature, forHTTPHeaderField: "signature")
     }
     
-    /**
-     * Generic method to fetch and decode API responses
-     * Handles authentication headers, error checking, and JSON decoding
-     * 
-     * @param request The URLRequest to send
-     * @return Decoded response of type T
-     * @throws Various errors that might occur during network operations or decoding
-     */
+    /// Generic method to fetch and decode API responses.
+    /// Handles authentication headers, error checking, and JSON decoding.
+    ///
+    /// - Parameter request: The URLRequest to send
+    /// - Returns: Decoded response of type T
+    /// - Throws: Various errors that might occur during network operations or decoding
     private func fetch<T: Decodable>(_ request: URLRequest) async throws -> T {
         if debugMode {
             print("DEBUG: Fetching \(request.url?.absoluteString ?? "unknown URL")")
@@ -427,10 +423,8 @@ class EnergyStatsAPI {
         }
     }
     
-    /**
-     * Authenticate with the FoxESS API
-     * For FoxESS, the API key is used directly as the token
-     */
+    /// Authenticate with the FoxESS API.
+    /// For FoxESS, the API key is used directly as the token.
     func authenticate() async throws {
         if debugMode {
             print("DEBUG: Setting API key as token")
@@ -438,11 +432,9 @@ class EnergyStatsAPI {
         self.token = apiKey
     }
     
-    /**
-     * Tests if the API key is valid by making a simple request
-     * 
-     * @return True if authentication is successful, false otherwise
-     */
+    /// Tests if the API key is valid by making a simple request.
+    ///
+    /// - Returns: True if authentication is successful, false otherwise
     func testAuthentication() async throws -> Bool {
         if debugMode {
             print("DEBUG: Testing authentication")
@@ -465,12 +457,10 @@ class EnergyStatsAPI {
         }
     }
     
-    /**
-     * Fetches the list of devices associated with this account
-     * 
-     * @return Array of device summary information
-     * @throws Network or API errors
-     */
+    /// Fetches the list of devices associated with this account.
+    ///
+    /// - Returns: Array of device summary information
+    /// - Throws: Network or API errors
     func fetchDeviceList() async throws -> [DeviceSummaryResponse] {
         if debugMode {
             print("DEBUG: Fetching device list")
@@ -484,14 +474,12 @@ class EnergyStatsAPI {
         return result.data
     }
     
-    /**
-     * Fetches real-time data from a specific device
-     * Queries a standard set of variables for solar system status
-     * 
-     * @param deviceSN Serial number of the device to query
-     * @return OpenQueryResponse containing requested data points
-     * @throws Network or API errors
-     */
+    /// Fetches real-time data from a specific device.
+    /// Queries a standard set of variables for solar system status.
+    ///
+    /// - Parameter deviceSN: Serial number of the device to query
+    /// - Returns: OpenQueryResponse containing requested data points
+    /// - Throws: Network or API errors
     func fetchRealData(deviceSN: String) async throws -> OpenQueryResponse {
         let variables = [
             "generationPower", "feedinPower", "gridConsumptionPower", "loadsPower", 
@@ -518,16 +506,12 @@ class EnergyStatsAPI {
 
 // MARK: - Utility Extensions
 
-/**
- * Extends String with an MD5 hash method
- * Used for generating API request signatures
- */
+/// Extends String with an MD5 hash method.
+/// Used for generating API request signatures.
 extension String {
-    /**
-     * Calculates MD5 hash of the string
-     * 
-     * @return MD5 hash as a hexadecimal string
-     */
+    /// Calculates MD5 hash of the string.
+    ///
+    /// - Returns: MD5 hash as a hexadecimal string
     func md5() -> String {
         let data = Data(self.utf8)
         let hash = Insecure.MD5.hash(data: data)
@@ -537,12 +521,10 @@ extension String {
 
 // MARK: - Application Logic
 
-/**
- * Main application entry point
- * Handles the overall flow of the program based on command line arguments
- * 
- * @param args Parsed command line arguments
- */
+/// Main application entry point.
+/// Handles the overall flow of the program based on command line arguments.
+///
+/// - Parameter args: Parsed command line arguments
 func run(args: CommandLineArgs) async {
     // Show help if requested
     guard !args.showHelp else {
