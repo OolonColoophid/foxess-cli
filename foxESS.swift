@@ -308,7 +308,8 @@ extension Array where Element == OpenQueryData {
             let valueStr: String
             switch item.value {
             case .double(let d): 
-                valueStr = String(format: "%.\(decimalPlaces)f", d)
+                let rawFormatted = String(format: "%.\(decimalPlaces)f", d)
+                valueStr = rawFormatted.replacingOccurrences(of: "\\.?0+$", with: "", options: .regularExpression)
             case .string(let s): 
                 valueStr = s
             case .unknown: 
@@ -618,7 +619,9 @@ func run(args: CommandLineArgs) async {
             
             // Helper function to format power values in kW
             let formatValue = { (value: Double) -> String in
-                return String(format: "%.\(args.decimalPlaces)f kW", value)
+                let rawFormatted = String(format: "%.\(args.decimalPlaces)f", value)
+                let trimmed = rawFormatted.replacingOccurrences(of: "\\.?0+$", with: "", options: .regularExpression)
+                return "\(trimmed) kW"
             }
             
             // Print a formatted summary of the system status
@@ -630,7 +633,9 @@ func run(args: CommandLineArgs) async {
             
             if device.hasBattery {
                 print("Battery: \(formatValue(abs(batteryFlow))) \(batteryFlow > 0 ? "charging" : "discharging")")
-                print("SoC: \(String(format: "%.\(args.decimalPlaces)f%%", batterySoC))")
+                let socFormatted = String(format: "%.\(args.decimalPlaces)f", batterySoC)
+                let socTrimmed = socFormatted.replacingOccurrences(of: "\\.?0+$", with: "", options: .regularExpression)
+                print("SoC: \(socTrimmed)%")
             }
         } else if args.showAll {
             // Show all available variables when --all flag is used
@@ -640,8 +645,9 @@ func run(args: CommandLineArgs) async {
             for variable in args.variables {
                 if let value = data.datas.double(for: variable) {
                     let unit = data.datas.getUnit(for: variable)
-                    let formattedValue = String(format: "%.\(args.decimalPlaces)f", value)
-                    print("\(variable): \(formattedValue) \(unit)")
+                    let rawFormatted = String(format: "%.\(args.decimalPlaces)f", value)
+                    let trimmed = rawFormatted.replacingOccurrences(of: "\\.?0+$", with: "", options: .regularExpression)
+                    print("\(variable): \(trimmed) \(unit)")
                 } else {
                     print("\(variable): Not available")
                 }
