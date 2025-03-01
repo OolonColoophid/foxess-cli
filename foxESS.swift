@@ -174,6 +174,9 @@ class CommandLineArgs {
     /// Flag to show all available variables
     var showAll = false
     
+    /// Number of decimal places to show in numeric output
+    var decimalPlaces = 2
+    
     /// Initializes by parsing command line arguments.
     /// Extracts API key, options, and variables.
     ///
@@ -191,6 +194,10 @@ class CommandLineArgs {
                 showHelp = true
             } else if arg == "--all" {
                 showAll = true
+            } else if arg.hasPrefix("--decimals=") {
+                if let decimalValue = Int(arg.dropFirst("--decimals=".count)) {
+                    decimalPlaces = decimalValue
+                }
             } else if arg.hasPrefix("--") {
                 // This is a variable the user wants to see (e.g., --generationPower)
                 variables.append(String(arg.dropFirst(2)))
@@ -213,7 +220,8 @@ class CommandLineArgs {
         print("  --help, -h          Display this help message")
         print("  --debug             Enable debug output")
         print("  --test              Test the API key only")
-        print("  --all               Show all available variables")
+        print("  --all               Show all available variables") 
+        print("  --decimals=N        Set decimal places for numeric output (default: 2)")
         print("")
         print("Variables (use with --<variable>):")
         print("  generationPower     Solar generation power")
@@ -232,6 +240,7 @@ class CommandLineArgs {
         print("Example:")
         print("  foxESS YOUR_API_KEY --generationPower --SoC")
         print("  foxESS YOUR_API_KEY --all")
+        print("  foxESS YOUR_API_KEY --decimals=3 --pvPower")
     }
 }
 
@@ -293,14 +302,17 @@ extension Array where Element == OpenQueryData {
     
     /// Prints all available variables and their current values.
     /// Used with the --all flag.
-    func dumpVariables() {
+    func dumpVariables(decimalPlaces: Int = 2) {
         print("Available variables:")
         for item in self {
             let valueStr: String
             switch item.value {
-            case .double(let d): valueStr = "\(d)"
-            case .string(let s): valueStr = s
-            case .unknown: valueStr = "unknown"
+            case .double(let d): 
+                valueStr = String(format: "%.\(decimalPlaces)f", d)
+            case .string(let s): 
+                valueStr = s
+            case .unknown: 
+                valueStr = "unknown"
             }
             print("  \(item.variable): \(valueStr) \(item.unit ?? "")")
         }
@@ -606,7 +618,7 @@ func run(args: CommandLineArgs) async {
             
             // Helper function to format power values in kW
             let formatValue = { (value: Double) -> String in
-                return String(format: "%.2f kW", value)
+                return String(format: "%.\(args.decimalPlaces)f kW", value)
             }
             
             // Print a formatted summary of the system status
@@ -618,17 +630,18 @@ func run(args: CommandLineArgs) async {
             
             if device.hasBattery {
                 print("Battery: \(formatValue(abs(batteryFlow))) \(batteryFlow > 0 ? "charging" : "discharging")")
-                print("SoC: \(String(format: "%.1f%%", batterySoC))")
+                print("SoC: \(String(format: "%.\(args.decimalPlaces)f%%", batterySoC))")
             }
         } else if args.showAll {
             // Show all available variables when --all flag is used
-            data.datas.dumpVariables()
+            data.datas.dumpVariables(decimalPlaces: args.decimalPlaces)
         } else {
             // Show only the requested variables
             for variable in args.variables {
                 if let value = data.datas.double(for: variable) {
                     let unit = data.datas.getUnit(for: variable)
-                    print("\(variable): \(value) \(unit)")
+                    let formattedValue = String(format: "%.\(args.decimalPlaces)f", value)
+                    print("\(variable): \(formattedValue) \(unit)")
                 } else {
                     print("\(variable): Not available")
                 }
