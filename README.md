@@ -27,7 +27,7 @@ swift build
 ./foxESS YOUR_API_KEY
 
 # Show specific variables
-./foxESS YOUR_API_KEY --generationPower --SoC
+./foxESS YOUR_API_KEY --generationPower --pvPower --SoC
 
 # Display all available variables
 ./foxESS YOUR_API_KEY --all
@@ -42,6 +42,7 @@ swift build
 ## Available Variables
 
 - `generationPower` - Solar generation power
+- `pvPower` - Solar power
 - `feedinPower` - Power feeding into the grid
 - `gridConsumptionPower` - Power drawn from the grid
 - `loadsPower` - Home consumption power

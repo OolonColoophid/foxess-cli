@@ -193,7 +193,7 @@ class CommandLineArgs {
                 showAll = true
             } else if arg.hasPrefix("--") {
                 // This is a variable the user wants to see (e.g., --generationPower)
-                variables.append(arg.dropFirst(2).lowercased())
+                variables.append(String(arg.dropFirst(2)))
             } else if !arg.hasPrefix("-") {
                 // Assume this is the API key
                 apiKey = arg
@@ -217,6 +217,7 @@ class CommandLineArgs {
         print("")
         print("Variables (use with --<variable>):")
         print("  generationPower     Solar generation power")
+        print("  pvPower             Solar power")
         print("  feedinPower         Power feeding into the grid")
         print("  gridConsumptionPower Power drawn from the grid")
         print("  loadsPower          Home consumption power")
@@ -487,7 +488,7 @@ class FoxESSStatsAPI {
         let variables = [
             "generationPower", "feedinPower", "gridConsumptionPower", "loadsPower", 
             "batChargePower", "batDischargePower", "SoC", "batTemperature", 
-            "ambientTemperation", "invTemperation", "meterPower2"
+            "ambientTemperation", "invTemperation", "meterPower2", "pvPower"
         ]
         
         if debugMode {
@@ -581,6 +582,7 @@ func run(args: CommandLineArgs) async {
         if args.variables.isEmpty && !args.showAll {
             // Default output - show primary power flow values
             let solar = data.datas.double(for: "generationPower") ?? 0
+            let pvPower = data.datas.double(for: "pvPower") ?? 0
             let gridConsumption = data.datas.double(for: "gridConsumptionPower") ?? 0
             let feedIn = data.datas.double(for: "feedinPower") ?? 0
             let home = data.datas.double(for: "loadsPower") ?? 0
@@ -594,6 +596,7 @@ func run(args: CommandLineArgs) async {
             if args.debugMode {
                 print("DEBUG: Raw values:")
                 print("DEBUG: Solar: \(solar) W")
+                print("DEBUG: PVPower: \(pvPower) W")
                 print("DEBUG: GridConsumption: \(gridConsumption) W")
                 print("DEBUG: FeedIn: \(feedIn) W")
                 print("DEBUG: Home: \(home) W")
@@ -608,13 +611,14 @@ func run(args: CommandLineArgs) async {
             
             // Print a formatted summary of the system status
             print("Device: \(device.stationName)")
-            print("Solar: \(formatValue(solar))")
-            print("Home:  \(formatValue(home))")
-            print("Grid:  \(formatValue(abs(gridFlow))) \(gridFlow > 0 ? "import" : "export")")
+            print("generationPower: \(formatValue(solar))")
+            print("pvPower: \(formatValue(pvPower))")
+            print("loadsPower: \(formatValue(home))")
+            print("Grid: \(formatValue(abs(gridFlow))) \(gridFlow > 0 ? "import" : "export")")
             
             if device.hasBattery {
                 print("Battery: \(formatValue(abs(batteryFlow))) \(batteryFlow > 0 ? "charging" : "discharging")")
-                print("Battery Level: \(String(format: "%.1f%%", batterySoC))")
+                print("SoC: \(String(format: "%.1f%%", batterySoC))")
             }
         } else if args.showAll {
             // Show all available variables when --all flag is used
@@ -624,8 +628,7 @@ func run(args: CommandLineArgs) async {
             for variable in args.variables {
                 if let value = data.datas.double(for: variable) {
                     let unit = data.datas.getUnit(for: variable)
-                    let name = data.datas.getName(for: variable)
-                    print("\(name): \(value) \(unit)")
+                    print("\(variable): \(value) \(unit)")
                 } else {
                     print("\(variable): Not available")
                 }
