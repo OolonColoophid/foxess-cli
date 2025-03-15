@@ -307,8 +307,10 @@ extension Array where Element == OpenQueryData {
         for item in self {
             let valueStr: String
             switch item.value {
-            case .double(let d): 
-                let rawFormatted = String(format: "%.\(decimalPlaces)f", d)
+            case .double(let d):
+                // Apply the zero threshold for solar energy values
+                let adjustedValue = (item.variable == "generationPower" || item.variable == "pvPower") && d <= 0.02 ? 0.0 : d
+                let rawFormatted = String(format: "%.\(decimalPlaces)f", adjustedValue)
                 valueStr = rawFormatted.replacingOccurrences(of: "\\.?0+$", with: "", options: .regularExpression)
             case .string(let s): 
                 valueStr = s
@@ -594,8 +596,9 @@ func run(args: CommandLineArgs) async {
         
         if args.variables.isEmpty && !args.showAll {
             // Default output - show primary power flow values
-            let solar = data.datas.double(for: "generationPower") ?? 0
-            let pvPower = data.datas.double(for: "pvPower") ?? 0
+            // Get raw values from data
+            var solar = data.datas.double(for: "generationPower") ?? 0
+            var pvPower = data.datas.double(for: "pvPower") ?? 0
             let gridConsumption = data.datas.double(for: "gridConsumptionPower") ?? 0
             let feedIn = data.datas.double(for: "feedinPower") ?? 0
             let home = data.datas.double(for: "loadsPower") ?? 0
@@ -605,6 +608,10 @@ func run(args: CommandLineArgs) async {
             let batteryDischarge = data.datas.double(for: "batDischargePower") ?? 0
             let batteryFlow = batteryCharge - batteryDischarge
             let batterySoC = data.datas.double(for: "SoC") ?? 0
+            
+            // Treat solar energy values of 0.02 or less as 0
+            if solar <= 0.02 { solar = 0 }
+            if pvPower <= 0.02 { pvPower = 0 }
             
             if args.debugMode {
                 print("DEBUG: Raw values:")
@@ -644,8 +651,11 @@ func run(args: CommandLineArgs) async {
             // Show only the requested variables
             for variable in args.variables {
                 if let value = data.datas.double(for: variable) {
+                    // Apply the zero threshold for solar energy values
+                    let adjustedValue = (variable == "generationPower" || variable == "pvPower") && value <= 0.02 ? 0.0 : value
+                    
                     let unit = data.datas.getUnit(for: variable)
-                    let rawFormatted = String(format: "%.\(args.decimalPlaces)f", value)
+                    let rawFormatted = String(format: "%.\(args.decimalPlaces)f", adjustedValue)
                     let trimmed = rawFormatted.replacingOccurrences(of: "\\.?0+$", with: "", options: .regularExpression)
                     print("\(variable): \(trimmed) \(unit)")
                 } else {
