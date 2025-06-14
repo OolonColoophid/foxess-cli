@@ -1,6 +1,6 @@
 # FoxESS CLI
 
-A Swift command-line tool to query FoxESS energy data from solar inverters.
+A command-line tool to query FoxESS energy data from solar inverters. Available in both Swift and Python versions for cross-platform compatibility.
 
 ## Features
 
@@ -10,7 +10,7 @@ A Swift command-line tool to query FoxESS energy data from solar inverters.
 
 ## Installation
 
-### Compile from source
+### Swift Version (macOS/Linux with Swift)
 
 ```bash
 # Direct compilation
@@ -20,7 +20,18 @@ swiftc -o foxESS foxESS.swift
 swift build
 ```
 
+### Python Version (Linux/Cross-platform)
+
+The Python version (`foxESS.py`) requires Python 3.6+ and uses only standard library modules - no additional dependencies needed.
+
+```bash
+# Make executable (optional)
+chmod +x foxESS.py
+```
+
 ## Usage
+
+### Swift Version
 
 ```bash
 # Basic usage
@@ -37,6 +48,28 @@ swift build
 
 # Enable debug output
 ./foxESS YOUR_API_KEY --debug
+```
+
+### Python Version
+
+```bash
+# Basic usage
+python3 foxESS.py YOUR_API_KEY
+
+# Or if made executable
+./foxESS.py YOUR_API_KEY
+
+# Show specific variables
+python3 foxESS.py YOUR_API_KEY --generationPower --pvPower --SoC
+
+# Display all available variables
+python3 foxESS.py YOUR_API_KEY --all
+
+# Test API key validity
+python3 foxESS.py YOUR_API_KEY --test
+
+# Enable debug output
+python3 foxESS.py YOUR_API_KEY --debug
 ```
 
 ## Available Variables
