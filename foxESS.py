@@ -159,16 +159,22 @@ class FoxESSStatsAPI:
         if self.debug_mode:
             print(f"DEBUG: Fetching real-time data for {device_sn}")
             
+        # FoxESS real-time query expects the inverter serial number under "sn".
+        # Using "deviceSN" makes the endpoint return errno 0 with a null result.
         result = self._fetch(f"{self.base_url}/op/v0/device/real/query", {
-            "deviceSN": device_sn,
+            "sn": device_sn,
             "variables": variables
         })
-        
-        # Find the device data in the response
+
+        if result is None:
+            raise Exception("No real-time data returned for device")
+
+        # Find the device data in the response. The API normally echoes deviceSN,
+        # but accept sn as well to be robust against response-shape changes.
         for device_data in result:
-            if device_data.get('deviceSN') == device_sn:
+            if device_data.get('deviceSN') == device_sn or device_data.get('sn') == device_sn:
                 return [OpenQueryData(data) for data in device_data.get('datas', [])]
-                
+
         raise Exception("No data found for device")
 
 
