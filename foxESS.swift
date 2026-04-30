@@ -85,6 +85,11 @@ struct OpenQueryRequest: Codable {
     let deviceSN: String
     /// List of variable names to query
     let variables: [String]
+
+    enum CodingKeys: String, CodingKey {
+        case deviceSN = "sn"
+        case variables
+    }
 }
 
 /// Response structure for open queries.
@@ -232,8 +237,8 @@ class CommandLineArgs {
         print("  batDischargePower   Battery discharging power")
         print("  SoC                 Battery state of charge")
         print("  batTemperature      Battery temperature")
-        print("  ambientTemperation  Ambient temperature")
-        print("  invTemperation      Inverter temperature")
+        print("  ambientTemperature  Ambient temperature")
+        print("  invTemperature      Inverter temperature")
         print("  meterPower2         CT2 power reading")
         print("")
         print("Example:")
@@ -500,9 +505,9 @@ class FoxESSStatsAPI {
     /// - Throws: Network or API errors
     func fetchRealData(deviceSN: String) async throws -> OpenQueryResponse {
         let variables = [
-            "generationPower", "feedinPower", "gridConsumptionPower", "loadsPower", 
-            "batChargePower", "batDischargePower", "SoC", "batTemperature", 
-            "ambientTemperation", "invTemperation", "meterPower2", "pvPower"
+            "generationPower", "feedinPower", "gridConsumptionPower", "loadsPower",
+            "batChargePower", "batDischargePower", "SoC", "batTemperature",
+            "ambientTemperature", "invTemperature", "meterPower2", "pvPower"
         ]
         
         if debugMode {
